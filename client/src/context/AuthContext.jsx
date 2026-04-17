@@ -33,20 +33,27 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (username, password) => {
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password })
-    });
+    try {
+      console.log(`Tentando login em: ${API_BASE_URL}/auth/login`);
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
 
-    const data = await response.json();
+      const data = await response.json();
+      console.log('Resposta do servidor:', data);
 
-    if (response.ok) {
-      localStorage.setItem('token', data.token);
-      setUser(data.user);
-      return { success: true };
-    } else {
-      return { success: false, error: data.error };
+      if (response.ok) {
+        localStorage.setItem('token', data.token);
+        setUser(data.user);
+        return { success: true };
+      } else {
+        return { success: false, error: data.error || 'Erro desconhecido no login' };
+      }
+    } catch (error) {
+      console.error('Erro na requisição de login:', error);
+      return { success: false, error: 'Não foi possível conectar ao servidor. Verifique se o backend está rodando.' };
     }
   };
 

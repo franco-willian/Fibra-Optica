@@ -23,19 +23,20 @@ export default function LoginPage() {
 
   return (
     <div style={{
-      minHeight: '100vh',
+      minHeight: '100dvh', // Altura dinâmica para mobile
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '1.5rem',
+      padding: '1rem',
       background: 'radial-gradient(circle at top right, #1e293b, #0f172a)'
     }}>
       <div className="glass-panel animate-slide-up" style={{
         width: '100%',
-        maxWidth: '400px',
-        padding: '2.5rem',
-        borderRadius: '24px',
-        textAlign: 'center'
+        maxWidth: '440px',
+        padding: '2.5rem 1.75rem',
+        borderRadius: '28px',
+        textAlign: 'center',
+        margin: 'auto'
       }}>
         <div style={{
           width: '64px',
@@ -52,7 +53,7 @@ export default function LoginPage() {
           <LogIn size={32} />
         </div>
 
-        <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem', letterSpacing: '-0.5px' }}>Fibra Gestor</h1>
+        <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem', letterSpacing: '-0.5px' }}>Gestor De Trampa</h1>
         <p style={{ color: 'var(--text-muted)', marginBottom: '2rem', fontSize: '0.9rem' }}>
           Sistema de gestão para técnicos em campo
         </p>

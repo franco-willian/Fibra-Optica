@@ -56,10 +56,22 @@ button {
 /* Glassmorphism utilities */
 .glass-panel {
   background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4);
+}
+
+.responsive-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .btn-primary {
@@ -119,6 +131,7 @@ button {
 }
 
 .input-group input, .input-group select, .input-group textarea {
+  width: 100%;
   background: var(--surface-color);
   border: 1px solid var(--border-color);
   color: var(--text-main);
@@ -138,17 +151,44 @@ button {
 .map-container {
   flex: 1;
   width: 100%;
-  height: calc(100vh - 130px); /* header + bottom nav approx */
+  height: calc(100vh - 140px);
   position: relative;
   z-index: 1;
 }
 
+/* Nav Item Styling */
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  items-center;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  transition: all 0.2s;
+  min-width: 50px;
+  text-align: center;
+}
+
+.nav-item.active {
+  color: var(--primary);
+}
+
+.nav-item span {
+  font-weight: 500;
+}
+
 /* Animations */
-@keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
 }
 
 .animate-slide-up {
-  animation: slideUp 0.3s ease forwards;
+  animation: slide-up 0.5s ease-out forwards;
 }

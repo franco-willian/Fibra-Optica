@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, ZoomControl } from 'react-leaflet';
+import React, { useState, useEffect, useRef } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, ZoomControl, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { LocateFixed, Activity, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -16,6 +16,13 @@ const createCustomIcon = (color) => {
   });
 };
 
+const userIcon = new L.DivIcon({
+  className: 'user-icon',
+  html: `<div style="background-color: #3b82f6; width: 18px; height: 18px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px #3b82f6; animation: pulse 2s infinite;"></div>`,
+  iconSize: [18, 18],
+  iconAnchor: [9, 9]
+});
+
 const icons = {
   cto: createCustomIcon('#3b82f6'),
   ceo: createCustomIcon('#f59e0b'),
@@ -23,18 +30,23 @@ const icons = {
   splitter: createCustomIcon('#9333ea')
 };
 
+// Component to handle map centering
+function ChangeView({ center, zoom }) {
+  const map = useMap();
+  if (center) map.setView(center, zoom || 16);
+  return null;
+}
+
 export default function MapPage() {
   const [nodes, setNodes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [userPos, setUserPos] = useState(null);
+  const [mapCenter, setMapCenter] = useState([-23.55052, -46.633308]); // Default SP
   const navigate = useNavigate();
   const { token } = useAuth();
   
-  // State for quick log modal/form
   const [activeLogNode, setActiveLogNode] = useState(null);
   const [logDescription, setLogDescription] = useState('Alteração Realizada');
-
-  // Center of default city
-  const defaultPosition = [-23.55052, -46.633308]; // São Paulo
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/nodes`, {
@@ -49,7 +61,26 @@ export default function MapPage() {
         console.error(err);
         setLoading(false);
       });
+
+    // Auto-locate on first mount
+    handleLocate();
   }, [token]);
+
+  const handleLocate = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const coords = [pos.coords.latitude, pos.coords.longitude];
+          setUserPos(coords);
+          setMapCenter(coords);
+        },
+        (err) => {
+          alert("Não foi possível obter sua localização. Verifique as permissões de GPS.");
+        },
+        { enableHighAccuracy: true }
+      );
+    }
+  };
 
   const handleQuickLog = async (nodeId) => {
     try {
@@ -79,16 +110,24 @@ export default function MapPage() {
   return (
     <div className="map-container animate-slide-up">
       <MapContainer 
-        center={defaultPosition} 
+        center={mapCenter} 
         zoom={14} 
         style={{ height: '100%', width: '100%', zIndex: 1 }}
         zoomControl={false}
       >
+        <ChangeView center={userPos === mapCenter ? userPos : null} />
+        
         <TileLayer
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
         />
         
+        {userPos && (
+          <Marker position={userPos} icon={userIcon}>
+            <Popup>Você está aqui</Popup>
+          </Marker>
+        )}
+
         {nodes.map(node => (
           <Marker 
             key={node.id} 
@@ -146,7 +185,11 @@ export default function MapPage() {
         flexDirection: 'column',
         gap: '0.75rem'
       }}>
-        <button className="btn-icon glass-panel" style={{ width: '44px', height: '44px', color: 'var(--primary)' }}>
+        <button 
+          className="btn-icon glass-panel" 
+          onClick={handleLocate}
+          style={{ width: '44px', height: '44px', color: userPos ? 'var(--primary)' : 'white' }}
+        >
           <LocateFixed size={22} />
         </button>
         <button className="btn-icon glass-panel" onClick={() => navigate('/add')} style={{ width: '44px', height: '44px' }}>
